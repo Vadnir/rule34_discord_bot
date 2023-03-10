@@ -10,5 +10,7 @@ RUN pip install -r requirements.txt && rm requirements.txt
 
 COPY main.py .
 COPY Rule.py .
+COPY .env .
 
 ENTRYPOINT [ "python", "main.py"]
+
