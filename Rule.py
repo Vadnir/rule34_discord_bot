@@ -11,6 +11,11 @@ class Rule:
             return self.api.random_post().image
 
         if len(tags) > 2:
-            return self.api.random_post(tags=random.choices(tags, k=2)).image
-
-        return self.api.random_post(tags=tags).image
+            try:
+                return self.api.random_post(tags=random.choices(tags, k=2)).image
+            except:
+                return None
+        try:
+            return self.api.random_post(tags=tags).image
+        except:
+            return None
