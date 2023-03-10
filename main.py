@@ -20,7 +20,7 @@ async def on_ready():
 
 @bot.command()
 @commands.is_nsfw()
-async def random_posta(ctx, *args):
+async def random_post(ctx, *args):
     for _ in range(5):
         post = await rule.random_post(tags=list(args))
         if post is None:
