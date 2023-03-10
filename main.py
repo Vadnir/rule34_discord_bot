@@ -1,5 +1,6 @@
 from Rule import Rule
 from dotenv import load_dotenv
+from discord.ext import commands
 import os
 import discord
 
@@ -8,43 +9,40 @@ token = os.getenv("discord_token")
 
 intents = discord.Intents.default()
 intents.message_content = True
-client = discord.Client(intents=intents)
+bot = commands.Bot(command_prefix='$', intents=intents)
 rule = Rule()
 
 
-@client.event
+@bot.event
 async def on_ready():
     print("Bot Iniciado")
 
 
-@client.event
-async def on_message(message):
-
-    if message.author == client.user:
-        return
-
-    if not message.content.startswith('$random_post'):
-        return
-
-    if not message.channel.nsfw:
-        await message.channel.send("El Canal no es nfsw")
-        return
-
-    temp = message.content.replace("$random_post", "").split(" ")
-    tags = []
-
-    for i in temp:
-        if i != "":
-            tags.append(i)
-    print(tags)
-
-    for i in range(5):
-        url = await rule.random_post(tags=tags)
-
-        if url is None:
-            await message.channel.send("No Imagen Related Found")
+@bot.command()
+@commands.is_nsfw()
+async def random_posta(ctx, *args):
+    for _ in range(5):
+        post = await rule.random_post(tags=list(args))
+        if post is None:
+            await ctx.send("No Imagen Related Found")
             return
+        await ctx.send(post)
 
-        await message.channel.send(url)
 
-client.run(token)
+@bot.command()
+@commands.is_nsfw()
+async def search(ctx, limit: int = 10, page: int = 10, *tags):
+    posts = await rule.search(tags=list(tags), limit=limit, page=page)
+    if posts is None:
+        await ctx.send("No Imagen Related Found")
+        return
+
+    [await ctx.send(i) for i in posts]
+
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, discord.ext.commands.errors.NSFWChannelRequired):
+        await ctx.send("NSFW Command")
+
+bot.run(token)
