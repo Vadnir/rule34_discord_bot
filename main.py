@@ -36,8 +36,15 @@ async def on_message(message):
     for i in temp:
         if i != "":
             tags.append(i)
+    print(tags)
 
     for i in range(5):
-        await message.channel.send(await rule.random_post(tags=tags))
+        url = await rule.random_post(tags=tags)
+
+        if url is None:
+            await message.channel.send("No Imagen Related Found")
+            return
+
+        await message.channel.send(url)
 
 client.run(token)
