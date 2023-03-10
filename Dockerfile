@@ -1,16 +1,14 @@
-FROM python:3.10-slim-buster as base
+FROM python:3.10
 
-FROM base AS python-deps
+RUN useradd -ms /bin/bash user
+USER user
 
-COPY . .
+WORKDIR /home/user
 
-# Install pipenv and compilation dependencies
-RUN pip install -r requirements.txt
-RUN apt-get update && apt-get install -y --no-install-recommends gcc
+COPY requirements.txt .
+RUN pip install -r requirements.txt && rm requirements.txt
 
+COPY main.py .
+COPY Rule.py .
 
-FROM base AS runtime
-
-# Run the application
-ENTRYPOINT ["python", "main.py"]
-# CMD ["--config", "/config/config.yaml"]
+ENTRYPOINT [ "python", "main.py"]
